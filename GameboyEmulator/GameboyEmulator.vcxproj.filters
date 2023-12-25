@@ -1,0 +1,38 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="main.cpp" />
+    <ClCompile Include="Emulation\Devices\Cartridge.cpp" />
+    <ClCompile Include="Emulation\Devices\PPU.cpp" />
+    <ClCompile Include="Emulation\Devices\DeviceHandlers\BUS.cpp" />
+    <ClCompile Include="Emulation\Gameboy.cpp" />
+    <ClCompile Include="Application.cpp" />
+    <ClCompile Include="Debugger.cpp" />
+    <ClCompile Include="UIHandler.cpp" />
+    <ClCompile Include="Emulation\Devices\SHARP_SM83_CPU.cpp" />
+    <ClCompile Include="Emulation\Devices\Registers.cpp" />
+    <ClCompile Include="Emulation\Devices\DeviceDefinitions\CPUDefs.cpp" />
+    <ClCompile Include="Emulation\Devices\DeviceHandlers\Device.cpp" />
+    <ClCompile Include="Emulation\Devices\Ram.cpp" />
+    <ClCompile Include="Emulation\Devices\ClockUnit.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Emulation\Devices\Cartridge.h" />
+    <ClInclude Include="Emulation\Devices\DeviceHandlers\Device.h" />
+    <ClInclude Include="Emulation\Devices\PPU.h" />
+    <ClInclude Include="Emulation\Devices\DeviceHandlers\BUS.h" />
+    <ClInclude Include="Emulation\Gameboy.h" />
+    <ClInclude Include="Emulation\SaveState.h" />
+    <ClInclude Include="Application.h" />
+    <ClInclude Include="Debugger.h" />
+    <ClInclude Include="UIHandler.h" />
+    <ClInclude Include="Emulation\Devices\SHARP_SM83_CPU.h" />
+    <ClInclude Include="Emulation\Devices\DeviceHandlers\DeviceList.h" />
+    <ClInclude Include="Emulation\Devices\DeviceHandlers\IOState.h" />
+    <ClInclude Include="Emulation\Devices\Registers.h" />
+    <ClInclude Include="Emulation\Devices\DeviceDefinitions\CPUDefs.h" />
+    <ClInclude Include="Emulation\Devices\DeviceDefinitions\RegisterTypes.h" />
+    <ClInclude Include="Emulation\Devices\Ram.h" />
+    <ClInclude Include="Emulation\Devices\ClockUnit.h" />
+  </ItemGroup>
+</Project>
