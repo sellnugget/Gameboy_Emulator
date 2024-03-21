@@ -20,6 +20,10 @@ Application::Application(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR lpCm
     HWND  View1 = CreateWindow(L"STATIC", NULL, Style, 0, 0, 500, 500, UIHandler::GetWindow(L"Gameboy Emulator")->Window, NULL, hInstance, NULL);
 
     sf::RenderWindow SFMLView(View1);
+
+
+
+
     while (Message.message != WM_QUIT)
     {
         if (PeekMessage(&Message, NULL, 0, 0, PM_REMOVE))
@@ -31,6 +35,7 @@ Application::Application(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR lpCm
         }
         else 
         {
+
             if ((std::clock() - start) / (double)CLOCKS_PER_SEC >= (double)1.0 / framerate) {
                 debugger->Update();
                 start = std::clock();
@@ -43,7 +48,7 @@ Application::Application(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR lpCm
 
             sf::Texture texture;
             texture.create(LCDWIDTH, LCDHEIGHT);
-            texture.update((uint8_t*)gameboy.bus->CurrentIOstate.Buffers[!gameboy.bus->CurrentIOstate.BufferSelect], LCDWIDTH, LCDHEIGHT, 0, 0);
+            texture.update((uint8_t*)gameboy.bus->CurrentIOstate.Buffers[!gameboy.bus->CurrentIOstate.BufferSelect], LCDWIDTH, LCDHEIGHT,0 ,0);
             sf::Sprite sprite;
             
             gameboy.bus->CurrentIOstate.ControllerInput.A = sf::Keyboard::isKeyPressed(sf::Keyboard::C);
@@ -98,6 +103,14 @@ void Application::OnCommand(WPARAM WParam)
     case EMULATION_RESET:
         gameboy.Reset();
         break;
+    case SAVE_SLOT:
+        save_state = gameboy.saveState();
+        break;
+    case LOAD_SLOT:
+        if (save_state.Devices != NULL) {
+            gameboy.loadState(save_state);
+        }
+        break;
     }
 }
 
@@ -107,15 +120,19 @@ void Application::MenuHandler(HWND Handle)
     hDebug = CreateMenu();
     hFileMenu = CreateMenu();
     hEmulation = CreateMenu();
+    hSaveState = CreateMenu();
 
     AppendMenu(hFileMenu, MF_STRING, NULL, L"Open");
     AppendMenu(hDebug, MF_STRING, OPEN_DEBUGGER, L"Debugger");
     AppendMenu(hEmulation, MF_STRING, EMULATION_RESET, L"Reset");
+    AppendMenu(hSaveState, MF_STRING, SAVE_SLOT, L"Save");
+    AppendMenu(hSaveState, MF_STRING, LOAD_SLOT, L"Load");
+
 
     AppendMenu(hMenu, MF_POPUP, (UINT_PTR)hFileMenu, L"File");
     AppendMenu(hMenu, MF_POPUP, (UINT_PTR)hEmulation, L"Emulation");
     AppendMenu(hMenu, MF_POPUP, (UINT_PTR)hDebug, L"Debug");
-
+    AppendMenu(hMenu, MF_POPUP, (UINT_PTR)hSaveState, L"Save State");
     SetMenu(Handle, hMenu);
 
 }

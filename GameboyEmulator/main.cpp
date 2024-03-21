@@ -10,14 +10,12 @@
 
 
 
-
-
 int WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR lpCmdLine, int nCmdShow)
 {
-
+    
 
     
     Application app(hInstance, hPrevInstance, lpCmdLine, nCmdShow);
-  
+    
     
 }

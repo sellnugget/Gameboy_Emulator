@@ -5,7 +5,6 @@
 #include "Devices/Cartridge.h"
 #include "Devices/Ram.h"
 #include "Devices/Registers.h"
-#include "Devices/ClockUnit.h"
 #include "SaveState.h"
 
 
@@ -27,7 +26,6 @@ namespace gb {
 		PPU* ppu;
 		Registers* registers;
 		BUS* bus;
-		ClockUnit* clockunit;
 
 		
 

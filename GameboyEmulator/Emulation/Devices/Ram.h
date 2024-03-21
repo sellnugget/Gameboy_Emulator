@@ -3,13 +3,7 @@
 #include "DeviceHandlers/Device.h"
 
 
-#define WORK_RAM_BEGIN 0xC000
-#define WORK_RAM_END 0xDFFF
-#define WORK_RAM_SIZE WORK_RAM_END - WORK_RAM_BEGIN + 1
 
-#define HIGH_RAM_BEGIN 0xff80
-#define HIGH_RAM_END 0xfffe
-#define HIGH_RAM_SIZE HIGH_RAM_END - HIGH_RAM_BEGIN + 1
 
 
 namespace gb {

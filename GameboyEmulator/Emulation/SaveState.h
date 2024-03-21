@@ -12,5 +12,6 @@ public:
 	uint64_t TimeCode;
 	//holds state for each device and accessed through alias
 	void* Devices[END_TYPE];
+	uint8_t InteruptRegister[0xff];
 };
 

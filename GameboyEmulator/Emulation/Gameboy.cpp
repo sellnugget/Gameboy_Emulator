@@ -13,7 +13,6 @@ namespace gb {
         ram = new Ram(bus);
         ppu = new PPU(bus);
         registers = new Registers(bus);
-        clockunit = new ClockUnit(bus);
 
         cart->LoadRom("C:\\Users\\naomi\\Downloads\\bgb\\Tetris (World) (Rev A).gb");
 
@@ -33,7 +32,7 @@ namespace gb {
         cpu->Clock();
         for (int i = 0; i < cpu->Cycle * 4; i++) {
             ppu->Clock();
-            clockunit->Clock();
+            registers->Clock();
 
             bus->TimeCode++;
 
@@ -79,6 +78,7 @@ namespace gb {
                 continue;
             SaveState.Devices[i] = bus->_Devices[i]->SaveState();
         }
+        std::memcpy(&SaveState.InteruptRegister, &bus->interupt_register, sizeof(BUS::InteruptRegister));
         return SaveState;
     }
 
@@ -92,6 +92,7 @@ namespace gb {
                 continue;
             bus->_Devices[i]->LoadState(savestate.Devices[i]);
         }
+        std::memcpy(&bus->interupt_register, &savestate.InteruptRegister,  sizeof(BUS::InteruptRegister));
     }
 
     void Gameboy::SetSpeed(float speed)

@@ -14,7 +14,6 @@
     <ClCompile Include="Emulation\Devices\DeviceDefinitions\CPUDefs.cpp" />
     <ClCompile Include="Emulation\Devices\DeviceHandlers\Device.cpp" />
     <ClCompile Include="Emulation\Devices\Ram.cpp" />
-    <ClCompile Include="Emulation\Devices\ClockUnit.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Emulation\Devices\Cartridge.h" />
@@ -33,6 +32,6 @@
     <ClInclude Include="Emulation\Devices\DeviceDefinitions\CPUDefs.h" />
     <ClInclude Include="Emulation\Devices\DeviceDefinitions\RegisterTypes.h" />
     <ClInclude Include="Emulation\Devices\Ram.h" />
-    <ClInclude Include="Emulation\Devices\ClockUnit.h" />
+    <ClInclude Include="Emulation\Devices\DeviceDefinitions\PPUDef.h" />
   </ItemGroup>
 </Project>

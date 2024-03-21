@@ -17,7 +17,7 @@ public:
 	gb::Gameboy* gameboy;
 
 
-	std::vector<gb::Gameboy*> States;
+	std::vector<SaveState> States;
 	int numberofstates = 16;
 	struct InstructionData {
 		uint16_t Address;

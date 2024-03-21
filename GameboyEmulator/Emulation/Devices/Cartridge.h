@@ -6,9 +6,7 @@
 
 
 
-#define CART_BEGIN 0x0000
-#define CART_END 0x7fff
-#define CART_SIZE 0x8000
+
 
 namespace gb {
 

@@ -20,7 +20,16 @@ struct IOState {
 	//called when render is complete
 	void SwapBuffer() { if (BufferSelect == 1) BufferSelect = 0; else BufferSelect = 1; LCDscreen = Buffers[BufferSelect]; }
 
-	void WritePixel(uint32_t Color, int x, int y) { LCDscreen[LCDWIDTH * y + x] = Color; }
+	void WritePixel(uint32_t Color, int x, int y) { 
+
+
+		if (x < 160 && y < 144 && y >= 0 && x >= 0) {
+			LCDscreen[LCDWIDTH * y + x] = Color;
+		}
+		else { 
+			exit(1);
+		} 
+	}
 
 	
 

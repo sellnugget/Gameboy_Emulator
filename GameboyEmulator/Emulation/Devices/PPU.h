@@ -5,30 +5,27 @@
 #include "Registers.h"
 #include "DeviceHandlers/Device.h"
 #include "DeviceHandlers/BUS.h"
+#include "DeviceDefinitions/PPUDef.h"
 namespace gb {
 
 
 
-#define VRAM_BEGIN 0x8000
-#define VRAM_END 0x9fff
-#define VRAM_SIZE VRAM_END - VRAM_BEGIN + 1
 
-#define OAM_BEGIN 0xFE00
-#define OAM_END 0xFE9F
-#define OAM_SIZE OAM_END - OAM_BEGIN + 1
+
 
 
 	class PPU : public Device
 	{
 	public:
-
+		
 
 
 		PPU(BUS* bus) { BaseInit(bus); }
 
 		uint8_t VideoRam[VRAM_SIZE];
-		//current phase of PPU
-		uint8_t MODE;
+
+
+
 
 		struct SPRITE_OBJ {
 
@@ -81,69 +78,62 @@ namespace gb {
 		void Clock();
 
 
+		//all registers accessible by the cpu are stored in Register
+		PPU_REGISTER Register;
 
-		//register stuff
-
-		uint8_t ReadLY();
 	private:
 
-
-		union {
-			struct {
-
-				//BG & Window enable / priority
-				uint8_t BG_WIN_ENABLE : 1;
-
-				uint8_t OBJ_ENABLE : 1;
-
-				uint8_t OBJ_SIZE : 1;
-
-				uint8_t BG_TILE_MAP : 1;
-
-				uint8_t BG_WIN_TILES : 1;
-
-				uint8_t WIN_ENABLE : 1;
-
-				uint8_t WIN_TILE_MAP : 1;
-
-				uint8_t LCD_PPU_ENABLE : 1;
-
-			};
-
-			uint8_t _LCDC;
-		};
-
-		union {
-			struct {
-				uint8_t PPU_MODE : 2;
-				uint8_t LYC_EQL_LY : 1;
-				uint8_t MODE_0_SELECT : 1;
-				uint8_t MODE_1_SELECT : 1;
-				uint8_t MODE_2_SELECT : 1;
-				uint8_t LYC_SELECT : 1;
-			};
-
-			uint8_t _LCD_STAT;
-		};
-		//scroll y
-		uint8_t _SCY;
-		//scroll x
-		uint8_t _SCX;
-		//line y
-		uint8_t _LY;
-		//line y count
-		uint16_t _LYC;
-
-		//DMA not a register in the same way
-
-		//Window Y position
-		uint8_t _WY;
-		//Window X Position + 7
-		uint8_t _WX;
+		//current phase of PPU
+		uint8_t MODE;
+		//controls the transfer and length. if -1 then no transfer is underway
+		int Transfer = -1;
+		
+		//keep track of number of clock cycles since begining this line
+		uint16_t Horizonal_Counter = 0;
 
 
-		//Window Internal Line Counter
-		uint8_t _WILC;
+		//only used in mode 3
+		//Fetcher contains most of the registers used by the ppu while drawing the scene
+		Fetcher fetcher;
+	
+
+		//current background first in first out
+		FIFO bgFIFO;
+
+		//current object first in first out
+		FIFO objFIFO;
+
+		uint8_t Horizontal_Pixel = 0;
+
+		//keeps track of number of pixels that need to be discarded at start of scanline
+		uint8_t ScrollOffset = 0;
+
+		void Clock_DMA();
+
+		void EnterMode(int mode_number);
+
+
+		//checks if rendering is currently in window
+		bool InWindow();
+
+
+		void OnMode0();
+
+		void OnMode1();
+
+		void OnMode2();
+
+
+
+
+
+
+		void OnMode3();
+
+
+		//runs the fetcher for one cycle
+		void FetchTile();
+
 
 
 	};

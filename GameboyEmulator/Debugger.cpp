@@ -2,8 +2,8 @@
 Debugger::Debugger(gb::Gameboy* gameBoy)
 {
 
-	BreakPoints = std::vector<BreakPoint>(0xffff, { 0, 0 });
-	AddresstoInstruction = std::vector<uint16_t>(0xffff, 0);
+	BreakPoints = std::vector<BreakPoint>(0x10000, { 0, 0 });
+	AddresstoInstruction = std::vector<uint16_t>(0x10000, 0);
 	gameboy = gameBoy;
 	GenerateRomText();
 
@@ -174,7 +174,7 @@ void Debugger::GenerateRomText()
 		
 		inst.Address = i;
 
-		uint8_t opcode = gameboy->bus->ReadByte(i);
+		uint8_t opcode = gameboy->bus->ReadByte(i, CART_TYPE);
 
 		gb::CPU_INFO::Instruction instruction = gb::CPU_INFO::unprefixed[opcode];
 
@@ -183,13 +183,13 @@ void Debugger::GenerateRomText()
 		inst.size = instruction.Size;
 		i++;
 		if (instruction.Size == 2) {
-			D1 = gameboy->bus->ReadByte(i);
+			D1 = gameboy->bus->ReadByte(i, CART_TYPE);
 			inst.bytes[1] = D1;
 			i++;
 			
 		}
 		if (instruction.Size == 3) {
-			A16 = gameboy->bus->ReadWord(i);
+			A16 = gameboy->bus->ReadWord(i, CART_TYPE);
 
 
 			inst.bytes[1] = D1;
@@ -199,7 +199,7 @@ void Debugger::GenerateRomText()
 		}
 		if (instruction.mnemonic == "PREFIX") {
 			
-			opcode = gameboy->bus->ReadByte(i);
+			opcode = gameboy->bus->ReadByte(i, CART_TYPE);
 			inst.bytes[1] = opcode;
 
 			instruction = gb::CPU_INFO::cbprefixed[opcode];
@@ -319,7 +319,7 @@ LRESULT CALLBACK Debugger::EventPoll(HWND Handle, UINT Message, WPARAM WParam, L
 
 				if (States.size() > 0) {
 				
-					*gameboy = *States[States.size() - 1];
+					gameboy->loadState(States[States.size() - 1]);
 
 					States.pop_back();
 				
@@ -537,7 +537,7 @@ void Debugger::Update()
 		SendMessage(DisAssembleView, LB_SETCURSEL, AddresstoInstruction[gameboy->cpu->Registers.PC], 0);
 	}
 	if (RunGb) {
-		while(gameboy->ppu->ReadLY() != 144) {
+		while(gameboy->ppu->Register.LY != 144) {
 
 			
 			if (BreakPoints[gameboy->cpu->Registers.PC].Active) {
@@ -545,28 +545,17 @@ void Debugger::Update()
 				SendMessage(DisAssembleView, LB_SETCURSEL, BreakPoints[gameboy->cpu->Registers.PC].InstructionIndex, 0);
 				break;
 			}
-			//logstream << std::hex << std::setfill('0') << std::setw(4) << gameboy->cpu->Registers.PC << " ";
 			gameboy->Clock();
 
-			//logstream << gameboy->cpu->LoadedInstruction.mnemonic + "\n";
-
-			//if (logstream.tellp() > 0xfffff) {
-				//logstream.seekp(0);
-			//}
-			
-			/*
-			if (gameboy->CurrentClock % 70000 == 0) {
-				States.push_back(gameboy->CopyState());
+			if (gameboy->bus->TimeCode % 70000 == 0) {
+				States.push_back(gameboy->saveState());
 				if (States.size() > numberofstates) {
-					delete States[0];
 					States.erase(States.begin());
 				}
 			}
-			
-			*/
 		}
 
-		while (gameboy->ppu->ReadLY() == 144) {
+		while (gameboy->ppu->Register.LY == 144) {
 
 			if (BreakPoints[gameboy->cpu->Registers.PC].Active) {
 				RunGb = false;

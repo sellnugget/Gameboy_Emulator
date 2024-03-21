@@ -136,7 +136,6 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Application.cpp" />
-    <ClCompile Include="Emulation\Devices\ClockUnit.cpp" />
     <ClCompile Include="Debugger.cpp" />
     <ClCompile Include="Emulation\Devices\DeviceDefinitions\CPUDefs.cpp" />
     <ClCompile Include="Emulation\Devices\DeviceHandlers\BUS.cpp" />
@@ -152,9 +151,9 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Application.h" />
-    <ClInclude Include="Emulation\Devices\ClockUnit.h" />
     <ClInclude Include="Debugger.h" />
     <ClInclude Include="Emulation\Devices\DeviceDefinitions\CPUDefs.h" />
+    <ClInclude Include="Emulation\Devices\DeviceDefinitions\PPUDef.h" />
     <ClInclude Include="Emulation\Devices\DeviceDefinitions\RegisterTypes.h" />
     <ClInclude Include="Emulation\Devices\DeviceHandlers\BUS.h" />
     <ClInclude Include="Emulation\Devices\Cartridge.h" />

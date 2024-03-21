@@ -3,7 +3,6 @@
 #include <vector>
 namespace gb {
 
-
     struct CPU_INFO {
         enum ReferenceName {
 

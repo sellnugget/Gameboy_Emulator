@@ -26,6 +26,15 @@ namespace gb {
 		
 		virtual uint8_t Read(uint16_t Address) { return 0; };
 		virtual void Write(uint16_t Adddress, uint8_t Data) {};
+
+		uint8_t ReadBus(uint16_t Address);
+
+		void WriteBus(uint16_t Address, uint8_t Byte);
+
+		uint16_t ReadWord(uint16_t Address);
+
+		void WriteWord(uint16_t Address, uint16_t Word);
+
 		void* SaveState();
 		void LoadState(void* state);
 		void BaseInit(BUS* bus);

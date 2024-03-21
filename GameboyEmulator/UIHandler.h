@@ -16,7 +16,7 @@ struct UIWindow {
 };
 
 
-
+//main ui handler for all things ui
 class UIHandler
 {
 public:
@@ -28,6 +28,7 @@ public:
 	static int nCmdShow;
 
 	
+
 
 
 	static LRESULT CALLBACK MainEventHandler(HWND Handle, UINT Message, WPARAM WParam, LPARAM LParam);

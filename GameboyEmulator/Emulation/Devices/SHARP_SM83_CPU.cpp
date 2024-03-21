@@ -7,10 +7,10 @@ namespace gb {
     {
 
         Registers.AF = 0x01b0;
-        Registers.A16 = 0;
+        Registers.A16= 0x0000;
         Registers.BC = 0x0013;
         Registers.DE = 0x00d8;
-        Registers.PC = 0x100;
+        Registers.PC = 0x0100;
         Registers.SP = 0xfffe;
         Registers.HL = 0x014d;
         HALTED = false;
@@ -131,16 +131,15 @@ namespace gb {
     {
 
 
-        gb::Registers* reg = (gb::Registers*)Bus->_Devices[REGISTERS_TYPE];
-        InteruptRegister* Interupt_Register = &reg->interupt_register;
+
        
 
         //interupt handler 
-        if (Interupt_Register->IME) {
+        if (Bus->interupt_register.IME) {
 
-            if (Interupt_Register->IE.VBLANK && Interupt_Register->IF.VBLANK) {
-                Interupt_Register->IME = false;
-                Interupt_Register->IF.VBLANK = false;
+            if (Bus->interupt_register.IE.VBLANK && Bus->interupt_register.IF.VBLANK) {
+                Bus->interupt_register.IME = false;
+                Bus->interupt_register.IF.VBLANK = false;
                 Registers.A16 = 0x0040;
                 call_nn();
                 Cycle = 5;
@@ -148,9 +147,9 @@ namespace gb {
                 HALTED = false;
                 return;
             }
-            else if (Interupt_Register->IE.LCD && Interupt_Register->IF.LCD) {
-                Interupt_Register->IME = false;
-                Interupt_Register->IF.LCD = false;
+            else if (Bus->interupt_register.IE.LCD && Bus->interupt_register.IF.LCD) {
+                Bus->interupt_register.IME = false;
+                Bus->interupt_register.IF.LCD = false;
                 Registers.A16 = 0x0048;
                 call_nn();
                 Cycle = 5;
@@ -158,9 +157,9 @@ namespace gb {
                 HALTED = false;
                 return;
             }
-            else if (Interupt_Register->IE.TIMER && Interupt_Register->IF.TIMER) {
-                Interupt_Register->IME = false;
-                Interupt_Register->IF.TIMER = false;
+            else if (Bus->interupt_register.IE.TIMER && Bus->interupt_register.IF.TIMER) {
+                Bus->interupt_register.IME = false;
+                Bus->interupt_register.IF.TIMER = false;
                 Registers.A16 = 0x0050;
                 call_nn();
                 Cycle = 5;
@@ -168,9 +167,9 @@ namespace gb {
                 HALTED = false;
                 return;
             }
-            else if (Interupt_Register->IE.SERIAL && Interupt_Register->IF.SERIAL) {
-                Interupt_Register->IME = false;
-                Interupt_Register->IF.SERIAL = false;
+            else if (Bus->interupt_register.IE.SERIAL && Bus->interupt_register.IF.SERIAL) {
+                Bus->interupt_register.IME = false;
+                Bus->interupt_register.IF.SERIAL = false;
                 Registers.A16 = 0x0058;
                 call_nn();
                 Cycle = 5;
@@ -178,9 +177,9 @@ namespace gb {
                 HALTED = false;
                 return;
             }
-            else if (Interupt_Register->IE.JOYPAD && Interupt_Register->IF.JOYPAD) {
-                Interupt_Register->IME = false;
-                Interupt_Register->IF.JOYPAD = false;
+            else if (Bus->interupt_register.IE.JOYPAD && Bus->interupt_register.IF.JOYPAD) {
+                Bus->interupt_register.IME = false;
+                Bus->interupt_register.IF.JOYPAD = false;
                 Registers.A16 = 0x0060;
                 call_nn();
                 Cycle = 5;
@@ -198,7 +197,7 @@ namespace gb {
 
 
         if (IME_Buffer) {
-            Interupt_Register->IME = true;
+            Bus->interupt_register.IME = true;
             IME_Buffer = false;
         }
 
@@ -233,7 +232,7 @@ namespace gb {
 
     uint8_t SHARP_SM83_CPU::ReadBYTEPC()
     {
-        uint8_t a = Bus->ReadByte(Registers.PC);
+        uint8_t a = ReadBus(Registers.PC);
         Registers.PC++;
         return a;
     }
@@ -437,91 +436,91 @@ namespace gb {
     void SHARP_SM83_CPU::ld_r_$HL$()
     {
         uint8_t* a = Get_8BIT_Register(LoadedInstruction.Operands[0].name);
-        *a = Bus->ReadByte(Registers.HL);
+        *a = ReadBus(Registers.HL);
     }
 
     void SHARP_SM83_CPU::ld_$HL$_r()
     {
         uint8_t* b = Get_8BIT_Register(LoadedInstruction.Operands[1].name);
-        Bus->WriteByte(Registers.HL, *b);
+        WriteBus(Registers.HL, *b);
     }
 
     void SHARP_SM83_CPU::ld_$HL$_n()
     {
-        Bus->WriteByte(Registers.HL, Registers.D1);
+        WriteBus(Registers.HL, Registers.D1);
     }
 
     void SHARP_SM83_CPU::ld_A_$BC$()
     {
-        Registers.A = Bus->ReadByte(Registers.BC);
+        Registers.A = ReadBus(Registers.BC);
     }
 
     void SHARP_SM83_CPU::ld_A_$DE$()
     {
-        Registers.A = Bus->ReadByte(Registers.DE);
+        Registers.A = ReadBus(Registers.DE);
     }
 
     void SHARP_SM83_CPU::ld_A_$nn$()
     {
-        Registers.A = Bus->ReadByte(Registers.A16);
+        Registers.A = ReadBus(Registers.A16);
     }
 
     void SHARP_SM83_CPU::ld_$BC$_A()
     {
-        Bus->WriteByte(Registers.BC, Registers.A);
+        WriteBus(Registers.BC, Registers.A);
     }
 
     void SHARP_SM83_CPU::ld_$DE$_A()
     {
-        Bus->WriteByte(Registers.DE, Registers.A);
+        WriteBus(Registers.DE, Registers.A);
     }
 
     void SHARP_SM83_CPU::ld_$nn$_A()
     {
-        Bus->WriteByte(Registers.A16, Registers.A);
+        WriteBus(Registers.A16, Registers.A);
     }
 
     void SHARP_SM83_CPU::ld_A_$FF00_n$()
     {
-        Registers.A = Bus->ReadByte(0xFF00 + Registers.D1);
+        Registers.A = ReadBus(0xFF00 + Registers.D1);
     }
 
     void SHARP_SM83_CPU::ld_$FF00_n$_A()
     {
-        Bus->WriteByte(0xFF00 + Registers.D1, Registers.A);
+        WriteBus(0xFF00 + Registers.D1, Registers.A);
     }
 
     void SHARP_SM83_CPU::ld_A_$FF00_C$()
     {
-        Registers.A = Bus->ReadByte(0xFF00 + Registers.C);
+        Registers.A = ReadBus(0xFF00 + Registers.C);
     }
 
     void SHARP_SM83_CPU::ld_$FF00_C$_A()
     {
-        Bus->WriteByte(0xFF00 + Registers.C, Registers.A);
+        WriteBus(0xFF00 + Registers.C, Registers.A);
     }
 
     void SHARP_SM83_CPU::ldi_$HL$_A()
     {
-        Bus->WriteByte(Registers.HL, Registers.A);
+        WriteBus(Registers.HL, Registers.A);
         Registers.HL++;
     }
 
     void SHARP_SM83_CPU::ldi_A_$HL$()
     {
-        Registers.A = Bus->ReadByte(Registers.HL);
+        Registers.A = ReadBus(Registers.HL);
         Registers.HL++;
     }
 
     void SHARP_SM83_CPU::ldd_$HL$_A()
     {
-        Bus->WriteByte(Registers.HL, Registers.A);
+        WriteBus(Registers.HL, Registers.A);
         Registers.HL--;
     }
 
     void SHARP_SM83_CPU::ldd_A_$HL$()
     {
-        Registers.A = Bus->ReadByte(Registers.HL);
+        Registers.A = ReadBus(Registers.HL);
         Registers.HL--;
     }
 
@@ -533,7 +532,7 @@ namespace gb {
 
     void SHARP_SM83_CPU::ld_$nn$_SP()
     {
-        Bus->WriteWord(Registers.A16, Registers.SP);
+        WriteWord(Registers.A16, Registers.SP);
     }
 
     void SHARP_SM83_CPU::ld_SP_HL()
@@ -545,13 +544,13 @@ namespace gb {
     {
         Registers.SP -= 2;
         uint16_t* rr = Get_16BIT_Register(LoadedInstruction.Operands[0].name);
-        Bus->WriteWord(Registers.SP, *rr);
+        WriteWord(Registers.SP, *rr);
     }
 
     void SHARP_SM83_CPU::pop_rr()
     {
         uint16_t* rr = Get_16BIT_Register(LoadedInstruction.Operands[0].name);
-        *rr = Bus->ReadWord(Registers.SP);
+        *rr = ReadWord(Registers.SP);
         Registers.SP += 2;
     }
 
@@ -572,7 +571,7 @@ namespace gb {
 
     void SHARP_SM83_CPU::add_A_$HL$()
     {
-        uint8_t Value = Bus->ReadByte(Registers.HL);
+        uint8_t Value = ReadBus(Registers.HL);
         SetFlags8bit_MATH(Registers.A, Value);
         Registers.A += Value;
     }
@@ -596,7 +595,7 @@ namespace gb {
 
     void SHARP_SM83_CPU::adc_A_$HL$()
     {
-        uint16_t value = Bus->ReadByte(Registers.HL) + (uint16_t)Registers.Carry;
+        uint16_t value = ReadBus(Registers.HL) + (uint16_t)Registers.Carry;
         SetFlags8bit_MATH(Registers.A, value);
         Registers.A += value;
     }
@@ -618,7 +617,7 @@ namespace gb {
 
     void SHARP_SM83_CPU::sub_$HL$()
     {
-        uint8_t Value = Bus->ReadByte(Registers.HL);
+        uint8_t Value = ReadBus(Registers.HL);
         SetFlags8bit_MATH(Registers.A, Value);
         Registers.A -= Value;
     }
@@ -641,7 +640,7 @@ namespace gb {
 
     void SHARP_SM83_CPU::sbc_A_$HL$()
     {
-        uint16_t value = Bus->ReadByte(Registers.HL) + (uint16_t)Registers.Carry;
+        uint16_t value = ReadBus(Registers.HL) + (uint16_t)Registers.Carry;
         SetFlags8bit_MATH(Registers.A, value);
         Registers.A -= value;
     }
@@ -662,7 +661,7 @@ namespace gb {
 
     void SHARP_SM83_CPU::and_$HL$()
     {
-        uint8_t value = Bus->ReadByte(Registers.HL);
+        uint8_t value = ReadBus(Registers.HL);
         Registers.A &= value;
         SetFlagsDirect(Registers.A);
     }
@@ -683,7 +682,7 @@ namespace gb {
 
     void SHARP_SM83_CPU::xor_$HL$()
     {
-        uint8_t value = Bus->ReadByte(Registers.HL);
+        uint8_t value = ReadBus(Registers.HL);
         Registers.A ^= value;
         SetFlagsDirect(Registers.A);
     }
@@ -704,7 +703,7 @@ namespace gb {
 
     void SHARP_SM83_CPU::or_$HL$()
     {
-        uint8_t value = Bus->ReadByte(Registers.HL);
+        uint8_t value = ReadBus(Registers.HL);
         Registers.A |= value;
         SetFlagsDirect(Registers.A);
     }
@@ -722,7 +721,7 @@ namespace gb {
 
     void SHARP_SM83_CPU::cp_$HL$()
     {
-        uint8_t Value = Bus->ReadByte(Registers.HL);
+        uint8_t Value = ReadBus(Registers.HL);
         SetFlags8bit_MATH(Registers.A, Value);
     }
 
@@ -735,9 +734,9 @@ namespace gb {
 
     void SHARP_SM83_CPU::inc_$HL$()
     {
-        uint8_t value = Bus->ReadByte(Registers.HL);
+        uint8_t value = ReadBus(Registers.HL);
         SetFlags8bit_MATH(value, 1);
-        Bus->WriteByte(Registers.HL, value + 1);
+        WriteBus(Registers.HL, value + 1);
     }
 
     void SHARP_SM83_CPU::dec_r()
@@ -749,9 +748,9 @@ namespace gb {
 
     void SHARP_SM83_CPU::dec_$HL$()
     {
-        uint8_t value = Bus->ReadByte(Registers.HL);
+        uint8_t value = ReadBus(Registers.HL);
         SetFlags8bit_MATH(value, 1);
-        Bus->WriteByte(Registers.HL, value - 1);
+        WriteBus(Registers.HL, value - 1);
     }
 
     void SHARP_SM83_CPU::daa()
@@ -954,7 +953,7 @@ namespace gb {
 
     void SHARP_SM83_CPU::rlc_$HL$()
     {
-        uint8_t value = Bus->ReadByte(Registers.HL);
+        uint8_t value = ReadBus(Registers.HL);
         uint8_t old = value;
         value <<= 1;
         if ((value & 0b10000000) != 0) {
@@ -965,7 +964,7 @@ namespace gb {
             Registers.Carry = 0;
         }
         SetFlagsDirect(value);
-        Bus->WriteByte(Registers.HL, value);
+        WriteBus(Registers.HL, value);
     }
 
     void SHARP_SM83_CPU::rl_r()
@@ -983,7 +982,7 @@ namespace gb {
 
     void SHARP_SM83_CPU::rl_$HL$()
     {
-        uint8_t value = Bus->ReadByte(Registers.HL);
+        uint8_t value = ReadBus(Registers.HL);
         bool newCarry = (value & 0b10000000) >> 7;
         value <<= 1;
         if (Registers.Carry) {
@@ -992,7 +991,7 @@ namespace gb {
         Registers.Carry = newCarry;
 
         SetFlagsDirect(value);
-        Bus->WriteByte(Registers.HL, value);
+        WriteBus(Registers.HL, value);
     }
 
     void SHARP_SM83_CPU::rrc_r()
@@ -1013,7 +1012,7 @@ namespace gb {
 
     void SHARP_SM83_CPU::rrc_$HL$()
     {
-        uint8_t value = Bus->ReadByte(Registers.HL);
+        uint8_t value = ReadBus(Registers.HL);
         uint8_t old = value;
         value >>= 1;
         if ((old & 0b00000001) != 0) {
@@ -1023,7 +1022,7 @@ namespace gb {
         else {
             Registers.Carry = 0;
         }
-        Bus->WriteByte(Registers.HL, value);
+        WriteBus(Registers.HL, value);
     }
 
     void SHARP_SM83_CPU::rr_r()
@@ -1041,7 +1040,7 @@ namespace gb {
 
     void SHARP_SM83_CPU::rr_$HL$()
     {
-        uint8_t value = Bus->ReadByte(Registers.HL);
+        uint8_t value = ReadBus(Registers.HL);
         bool newCarry = value & 1;
         value >>= 1;
         if (Registers.Carry) {
@@ -1050,7 +1049,7 @@ namespace gb {
         Registers.Carry = newCarry;
 
         SetFlagsDirect(value);
-        Bus->WriteByte(Registers.HL, value);
+        WriteBus(Registers.HL, value);
     }
 
     void SHARP_SM83_CPU::sla_r()
@@ -1069,7 +1068,7 @@ namespace gb {
 
     void SHARP_SM83_CPU::sla_$HL$()
     {
-        uint8_t value = Bus->ReadByte(Registers.HL);
+        uint8_t value = ReadBus(Registers.HL);
         if ((value & 0b10000000) != 0) {
             Registers.Carry = 1;
         }
@@ -1079,7 +1078,7 @@ namespace gb {
         value <<= 1;
 
         SetFlagsDirect(value);
-        Bus->WriteByte(Registers.HL, value);
+        WriteBus(Registers.HL, value);
 
     }
 
@@ -1092,10 +1091,10 @@ namespace gb {
 
     void SHARP_SM83_CPU::swap_$HL$()
     {
-        uint8_t value = Bus->ReadByte(Registers.HL);
+        uint8_t value = ReadBus(Registers.HL);
         value = (value >> 4) + ((value & 0x0f) << 4);
         SetFlagsDirect(value);
-        Bus->WriteByte(Registers.HL, value);
+        WriteBus(Registers.HL, value);
     }
 
     void SHARP_SM83_CPU::sra_r()
@@ -1115,7 +1114,7 @@ namespace gb {
 
     void SHARP_SM83_CPU::sra_$HL$()
     {
-        uint8_t value = Bus->ReadByte(Registers.HL);
+        uint8_t value = ReadBus(Registers.HL);
         uint8_t old = value;
         if ((value & 1) != 0) {
             Registers.Carry = 1;
@@ -1126,7 +1125,7 @@ namespace gb {
         value >>= 1;
         value |= (0b10000000 & old);
         SetFlagsDirect(value);
-        Bus->WriteByte(Registers.HL, value);
+        WriteBus(Registers.HL, value);
     }
 
     void SHARP_SM83_CPU::srl_r()
@@ -1144,7 +1143,7 @@ namespace gb {
 
     void SHARP_SM83_CPU::srl_$HL$()
     {
-        uint8_t value = Bus->ReadByte(Registers.HL);
+        uint8_t value = ReadBus(Registers.HL);
         if ((value & 1) != 0) {
             Registers.Carry = 1;
         }
@@ -1153,7 +1152,7 @@ namespace gb {
         }
         value >>= 1;
         SetFlagsDirect(value);
-        Bus->WriteByte(Registers.HL, value);
+        WriteBus(Registers.HL, value);
     }
 
     void SHARP_SM83_CPU::bit_n_r()
@@ -1167,7 +1166,7 @@ namespace gb {
     void SHARP_SM83_CPU::bit_n_$HL$()
     {
         int Index = LoadedInstruction.Operands[0].name - CPU_INFO::REF_0;
-        Registers.zero = !(Bus->ReadByte(Registers.HL) >> Index & 1);
+        Registers.zero = !(ReadBus(Registers.HL) >> Index & 1);
         Registers.H = 1;
         Registers.Subtract = 0;
     }
@@ -1182,9 +1181,9 @@ namespace gb {
     void SHARP_SM83_CPU::set_n_$HL$()
     {
         int Index = LoadedInstruction.Operands[0].name - CPU_INFO::REF_0;
-        uint8_t value = Bus->ReadByte(Registers.HL);
+        uint8_t value = ReadBus(Registers.HL);
         value |= 1 << Index;
-        Bus->WriteByte(Registers.HL, value);
+        WriteBus(Registers.HL, value);
     }
 
     void SHARP_SM83_CPU::res_n_r()
@@ -1197,9 +1196,9 @@ namespace gb {
     void SHARP_SM83_CPU::res_n_$HL$()
     {
         int Index = LoadedInstruction.Operands[0].name - CPU_INFO::REF_0;
-        uint8_t value = Bus->ReadByte(Registers.HL);
+        uint8_t value = ReadBus(Registers.HL);
         value &= ~(1 << Index);
-        Bus->WriteByte(Registers.HL, value);
+        WriteBus(Registers.HL, value);
     }
 
     void SHARP_SM83_CPU::ccf()
@@ -1230,8 +1229,8 @@ namespace gb {
 
     void SHARP_SM83_CPU::di()
     {
-        gb::Registers* reg = (gb::Registers*)Bus->_Devices[REGISTERS_TYPE];
-        reg->interupt_register.IME = false;
+
+        Bus->interupt_register.IME = false;
     }
 
     void SHARP_SM83_CPU::ei()
@@ -1279,7 +1278,7 @@ namespace gb {
     void SHARP_SM83_CPU::call_nn()
     {
         Registers.SP -= 2;
-        Bus->WriteWord(Registers.SP, Registers.PC);
+        WriteWord(Registers.SP, Registers.PC);
         Registers.PC = Registers.A16;
     }
 
@@ -1296,7 +1295,7 @@ namespace gb {
 
     void SHARP_SM83_CPU::ret()
     {
-        Registers.PC = Bus->ReadWord(Registers.SP);
+        Registers.PC = ReadWord(Registers.SP);
         Registers.SP += 2;
     }
 

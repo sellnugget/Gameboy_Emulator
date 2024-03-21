@@ -6,281 +6,139 @@ namespace gb {
 		StateSize = sizeof(Registers) - sizeof(Device);
 		deviceState = (uint8_t*)this + sizeof(Device);
 
-		Bus->SetMemoryMap(REGISTERS_TYPE, P1_JOYP, IF - P1_JOYP);
-		Bus->SetMemoryMap(REGISTERS_TYPE, IE, 1);
+		Bus->SetMemoryMap(REGISTERS_TYPE, RegisterInfo::P1_JOYP, RegisterInfo::IF - RegisterInfo::P1_JOYP + 1);
+		Bus->SetMemoryMap(REGISTERS_TYPE, RegisterInfo::IE, 1);
+		Write(RegisterInfo::TAC, 0);
 	}
 	uint8_t Registers::Read(uint16_t Address)
 	{
-
-		uint8_t ReturnValue = 0;
 		switch (Address) {
 
-		case P1_JOYP:
+		case RegisterInfo::P1_JOYP:
 
-			if (!joypad_register.SelectButtons) {
-				joypad_register.A_Right = !Bus->CurrentIOstate.ControllerInput.A;
-				joypad_register.B_Left = !Bus->CurrentIOstate.ControllerInput.B;
-				joypad_register.Select_Up = !Bus->CurrentIOstate.ControllerInput.Select;
-				joypad_register.Start_Down = !Bus->CurrentIOstate.ControllerInput.Start;
-			}
-			if (!joypad_register.Selectdpad) {
-				joypad_register.A_Right = !Bus->CurrentIOstate.ControllerInput.Right;
-				joypad_register.B_Left = !Bus->CurrentIOstate.ControllerInput.Left;
-				joypad_register.Select_Up = !Bus->CurrentIOstate.ControllerInput.Up;
-				joypad_register.Start_Down = !Bus->CurrentIOstate.ControllerInput.Down;
-			}
-			ReturnValue = joypad_register.Register;
+			
+			return joypad_register.Register;
+
+		case RegisterInfo::SB:
 			break;
 
-		case SB:
+		case RegisterInfo::SC:
 			break;
-
-		case SC:
-			break;
-		case DIV:
-			break;
-		case TIMA:
-			break;
-		case TMA:
-			break;
-		case TAC:
-			break;
-		case IF:
-			ReturnValue = interupt_register.IF.DATA;
-			break;
-		case NR10:
-
-		case NR11:
-			break;
-
-		case NR12:
-			break;
-		case NR13:
-			break;
-		case NR14:
-			break;
-		case NR21:
-			break;
-		case NR22:
-			break;
-		case NR23:
-			break;
-		case NR24:
-			break;
-		case NR30:
-			break;
-		case NR31:
-			break;
-		case NR32:
-			break;
-		case NR33:
-			break;
-		case NR34:
-			break;
-		case NR41:
-			break;
-		case NR42:
-			break;
-		case NR43:
-			break;
-		case NR44:
-			break;
-		case NR50:
-			break;
-		case NR51:
-			break;
-		case NR52:
-			break;
-		case LCDC:
-			break;
-		case STAT:
-			break;
-		case SCY:
-			break;
-		case SCX:
-			break;
-		case LY:
-			break;
-		case LYC:
-			break;
-		case DMA:
-			break;
-		case BGP:
-			break;
-		case OBP0:
-			break;
-		case OBP1:
-			break;
-		case WY:
-			break;
-		case WX:
-			break;
-		case KEY1:
-			break;
-		case VBK:
-			break;
-		case HDMA1:
-			break;
-		case HDMA2:
-			break;
-		case HDMA3:
-			break;
-		case HDMA4:
-			break;
-		case HDMA5:
-			break;
-		case RP:
-			break;
-		case BCPS_BGPI:
-			break;
-		case BCPD_BGPD:
-			break;
-		case OCPS_OBPI:
-			break;
-		case OCPD_OBPD:
-			break;
-		case OPRI:
-			break;
-		case SVBK:
-			break;
-		case PCM12:
-			break;
-		case PCM34:
-			break;
-		case IE:
-			ReturnValue = interupt_register.IE.DATA;
-			break;
+		case RegisterInfo::DIV:
+			return timer_register.DIV;
+		case RegisterInfo::TIMA:
+			return timer_register.TIMA;
+		case RegisterInfo::TMA:
+			return timer_register.TMA;
+		case RegisterInfo::TAC:
+			return timer_register.TAC;
+		case RegisterInfo::IF:
+			return Bus->interupt_register.IF.DATA;
+		case RegisterInfo::IE:
+			return Bus->interupt_register.IE.DATA;
 		}
-		return ReturnValue;
+		return 0;
 	}
 	void Registers::Write(uint16_t Address, uint8_t Data)
 	{
 		//this is more of a guide most of these will be implemented in the devices them selves
 		switch (Address) {
 
-		case P1_JOYP:
+		case RegisterInfo::P1_JOYP:
 
 			joypad_register.Register = Data;
+			joypad_register.Updated = true;
+			break;
+		case RegisterInfo::SB:
 			break;
 
-		case SB:
+		case RegisterInfo::SC:
 			break;
+		case RegisterInfo::DIV:
+			timer_register.DIV = 0x00;
+			break;
+		case RegisterInfo::TIMA:
+			timer_register.TIMA = Data;
+			break;
+		case RegisterInfo::TMA:
+			timer_register.TMA = Data;
+			break;
+		case RegisterInfo::TAC:
+			timer_register.TAC = Data;
 
-		case SC:
-			break;
-		case DIV:
-			break;
-		case TIMA:
-			break;
-		case TMA:
-			break;
-		case TAC:
-			break;
-		case IF:
-			interupt_register.IF.DATA = Data;
-			break;
-		case NR10:
+			switch (timer_register.ClockSelect) {
+			case 0:
 
-		case NR11:
-			break;
+				timer_register.CLOCK_SPEED = DOT_PER_SECOND / 4096;
+				break;
+			case 1:
 
-		case NR12:
+				timer_register.CLOCK_SPEED = DOT_PER_SECOND / 262144;
+				break;
+			case 2:
+				timer_register.CLOCK_SPEED = DOT_PER_SECOND / 65536;
+				break;
+
+			case 3:
+				timer_register.CLOCK_SPEED = DOT_PER_SECOND / 16384;
+				break;
+			}
+
 			break;
-		case NR13:
+		case RegisterInfo::IF:
+			Bus->interupt_register.IF.DATA = Data;
 			break;
-		case NR14:
-			break;
-		case NR21:
-			break;
-		case NR22:
-			break;
-		case NR23:
-			break;
-		case NR24:
-			break;
-		case NR30:
-			break;
-		case NR31:
-			break;
-		case NR32:
-			break;
-		case NR33:
-			break;
-		case NR34:
-			break;
-		case NR41:
-			break;
-		case NR42:
-			break;
-		case NR43:
-			break;
-		case NR44:
-			break;
-		case NR50:
-			break;
-		case NR51:
-			break;
-		case NR52:
-			break;
-		case LCDC:
-			break;
-		case STAT:
-			break;
-		case SCY:
-			break;
-		case SCX:
-			break;
-		case LY:
-			break;
-		case LYC:
-			break;
-		case DMA:
-			break;
-		case BGP:
-			break;
-		case OBP0:
-			break;
-		case OBP1:
-			break;
-		case WY:
-			break;
-		case WX:
-			break;
-		case KEY1:
-			break;
-		case VBK:
-			break;
-		case HDMA1:
-			break;
-		case HDMA2:
-			break;
-		case HDMA3:
-			break;
-		case HDMA4:
-			break;
-		case HDMA5:
-			break;
-		case RP:
-			break;
-		case BCPS_BGPI:
-			break;
-		case BCPD_BGPD:
-			break;
-		case OCPS_OBPI:
-			break;
-		case OCPD_OBPD:
-			break;
-		case OPRI:
-			break;
-		case SVBK:
-			break;
-		case PCM12:
-			break;
-		case PCM34:
-			break;
-		case IE:
-			interupt_register.IE.DATA = Data;
+		case RegisterInfo::IE:
+			Bus->interupt_register.IE.DATA = Data;
 			break;
 		}
+	}
+	void Registers::ClockJoypad()
+	{
+		//this checks if any bits changed from high to low
+		uint8_t BeforeUpdate = joypad_register.GetInputButtons();
+		if (!joypad_register.SelectButtons) {
+			joypad_register.A_Right = !Bus->CurrentIOstate.ControllerInput.A;
+			joypad_register.B_Left = !Bus->CurrentIOstate.ControllerInput.B;
+			joypad_register.Select_Up = !Bus->CurrentIOstate.ControllerInput.Select;
+			joypad_register.Start_Down = !Bus->CurrentIOstate.ControllerInput.Start;
+		}
+		if (!joypad_register.Selectdpad) {
+			joypad_register.A_Right = !Bus->CurrentIOstate.ControllerInput.Right;
+			joypad_register.B_Left = !Bus->CurrentIOstate.ControllerInput.Left;
+			joypad_register.Select_Up = !Bus->CurrentIOstate.ControllerInput.Up;
+			joypad_register.Start_Down = !Bus->CurrentIOstate.ControllerInput.Down;
+		}
+		if (!joypad_register.Updated && BeforeUpdate != joypad_register.GetInputButtons()) {
+			Bus->interupt_register.IF.JOYPAD = true;
+		}
+
+		joypad_register.Updated = false;
+	}
+	void Registers::ClockTimer()
+	{
+
+		if (Bus->TimeCode % DIV_SPEED == 0) {
+			timer_register.DIV++;
+		}
+		if (Bus->TimeCode % timer_register.CLOCK_SPEED == 0 && timer_register.Enable) {
+
+			if (timer_register.TIMA == 0xff) {
+
+				Bus->interupt_register.IF.TIMER = true;
+				timer_register.TIMA = timer_register.TMA;
+			}
+			else {
+				timer_register.TIMA++;
+			}
+
+		}
+
+	}
+	void Registers::Clock()
+	{
+		
+		ClockJoypad();
+		ClockTimer();
 	}
 }
